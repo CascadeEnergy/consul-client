@@ -6,32 +6,52 @@ var format = require('util').format;
 
 var methods = ['get', 'post'];
 
-module.exports = function(options) {
+/**
+ * @module @cascadeenergy/service-client
+ * @param {string} discoveryUrl
+ * @param {string} storageUrl
+ * @param {Object} httpClient with getAsync and postAsync methods
+ * @returns {Object} serviceClient with invoke and retrieve methods
+ */
+module.exports = function(discoveryUrl, storageUrl, httpClient) {
 
-  function invoke(params) {
-    return Bluebird.resolve(params)
+  /**
+   * @function invoke invoke
+   * @param {string} serviceName
+   * @param {Object} options can include method, endpoint and data
+   * @returns {Promise} resolves with
+   */
+  function invoke(serviceName, options) {
+    var defaultOptions = {
+      method: 'get'
+    };
+
+    options = _.assign(defaultOptions, options);
+
+    return Bluebird.resolve(options)
+      .then(validate)
       .then(getServiceUrl)
       .spread(checkStatusCode)
       .then(pluckServiceUrl)
       .then(makeRequest)
       .spread(checkStatusCode);
 
-    function getServiceUrl(params) {
-      if (params == null || params.serviceName == null) {
+    function validate(options) {
+      if (serviceName == null) {
         throw new Error('service name required');
       }
 
-      if (!params.method) {
-        params.method = 'get';
-      }
-
-      if (_.indexOf(methods, params.method) < 0) {
+      if (_.indexOf(methods, options.method) < 0) {
         throw new Error('unsupported method');
       }
 
-      return options.httpClient
+      return true;
+    }
+
+    function getServiceUrl() {
+      return httpClient
         .getAsync({
-          url: format(options.discoveryUrl, params.serviceName),
+          url: format(discoveryUrl, serviceName),
           json: true
         });
     }
@@ -56,24 +76,23 @@ module.exports = function(options) {
       var request = {
         json: true
       };
-
-      if (params.endpoint) {
-        serviceUrl += '/' + params.endpoint;
+      if (options.endpoint) {
+        serviceUrl += '/' + options.endpoint;
       }
       request.url = serviceUrl;
 
-      if (params.payload) {
-        request.body = params.payload;
+      if (options.payload) {
+        request.body = options.payload;
       }
 
-      return options.httpClient[params.method + 'Async'](request);
+      return httpClient[options.method + 'Async'](request);
     }
   }
 
   function retrieve(key) {
-    return options.httpClient
+    return httpClient
       .getAsync({
-        url: format(options.storageUrl, key),
+        url: format(storageUrl, key),
         json: true
       })
       .spread(checkStatusCode)

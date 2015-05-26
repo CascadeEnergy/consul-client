@@ -7,8 +7,6 @@ var sinon = require('sinon');
 describe('index', function() {
   var serviceFactory;
   var service;
-  var discoveryUrl = 'http://discovery/%s.url';
-  var storageUrl = 'http://storage/%s.url';
   var httpClient = {
     getAsync: sinon.stub(),
     postAsync: sinon.stub()
@@ -16,12 +14,11 @@ describe('index', function() {
 
   beforeEach(function() {
     serviceFactory = require('../index');
-    service = serviceFactory({
-      discoveryUrl: discoveryUrl,
-      storageUrl: storageUrl,
-      httpClient: httpClient
-    });
-    httpClient.getAsync.reset();
+    service = serviceFactory(
+      'http://discovery/%s.url',
+      'http://storage/%s.url',
+      httpClient
+    );
   });
 
   afterEach(function() {
@@ -38,9 +35,7 @@ describe('index', function() {
     });
 
     it('should discover and call service', function(done) {
-      service.invoke({
-        serviceName: 'serviceName'
-      })
+      service.invoke('serviceName')
         .then(function() {
           assert(httpClient.getAsync.calledTwice);
           assert.deepEqual(
@@ -60,10 +55,7 @@ describe('index', function() {
     });
 
     it('should append endpoint', function(done) {
-      service.invoke({
-        serviceName: 'serviceName',
-        endpoint: 'resource'
-      })
+      service.invoke('serviceName', {endpoint: 'resource'})
         .then(function() {
           assert.deepEqual(httpClient.getAsync.args[1], [
             {
@@ -79,11 +71,7 @@ describe('index', function() {
       var data = {};
       httpClient.postAsync.returns(Bluebird.resolve([{statusCode: 200}]));
 
-      service.invoke({
-        serviceName: 'serviceName',
-        method: 'post',
-        payload: data
-      })
+      service.invoke('serviceName', {method: 'post', payload: data})
         .then(function() {
           assert(httpClient.getAsync.calledOnce);
           assert.deepEqual(httpClient.postAsync.args[0], [
@@ -97,7 +85,7 @@ describe('index', function() {
         });
     });
 
-    it('should throw error params isn\'t defined', function(done) {
+    it('should throw error if no service name is provided', function(done) {
       service.invoke()
         .catch(function(e) {
           assert.equal(e.message, 'service name required');
@@ -105,19 +93,8 @@ describe('index', function() {
         });
     });
 
-    it('should throw error if no service name is provided', function(done) {
-      service.invoke({})
-        .catch(function(e) {
-          assert.equal(e.message, 'service name required');
-          done();
-        });
-    });
-
     it('should throw error method is unsupported', function(done) {
-      service.invoke({
-        serviceName: 'serviceName',
-        method: 'asdf'
-      })
+      service.invoke('serviceName', {method: 'asdf'})
         .catch(function(e) {
           assert.equal(e.message, 'unsupported method');
           done();
@@ -131,9 +108,7 @@ describe('index', function() {
           {statusCode: 500}
         ]));
 
-        service.invoke({
-          serviceName: 'serviceName'
-        })
+        service.invoke('serviceName')
           .catch(function(e) {
             assert.equal(e.message, 'resource not found');
             done();
@@ -149,9 +124,7 @@ describe('index', function() {
           []
         ]));
 
-        service.invoke({
-          serviceName: 'serviceName'
-        })
+        service.invoke('serviceName')
           .catch(function(e) {
             assert.equal(e.message, 'no service instances available');
             done();
@@ -170,9 +143,7 @@ describe('index', function() {
           [{Value: encodedValue}]
         ]));
 
-        service.retrieve({
-          serviceName: 'serviceName'
-        })
+        service.retrieve('key')
           .then(function(actualValue) {
             assert.equal(exptectedValue, actualValue);
             done();
@@ -187,9 +158,7 @@ describe('index', function() {
           {statusCode: 500}
         ]));
 
-        service.retrieve({
-          serviceName: 'serviceName'
-        })
+        service.retrieve('key')
           .catch(function(e) {
             assert.equal(e.message, 'resource not found');
             done();
