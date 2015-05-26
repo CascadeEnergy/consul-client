@@ -16,7 +16,6 @@ describe('index', function() {
     serviceFactory = require('../index');
     service = serviceFactory(
       'http://discovery/%s.url',
-      'http://storage/%s.url',
       httpClient
     );
   });
@@ -127,40 +126,6 @@ describe('index', function() {
         service.invoke('serviceName')
           .catch(function(e) {
             assert.equal(e.message, 'no service instances available');
-            done();
-          });
-      }
-    );
-  });
-
-  describe('retrieve', function() {
-    it('should fetch from storage', function(done) {
-        var exptectedValue = 'test value';
-        var encodedValue = new Buffer(exptectedValue);
-
-        httpClient.getAsync.returns(Bluebird.resolve([
-          {statusCode: 200},
-          [{Value: encodedValue}]
-        ]));
-
-        service.retrieve('key')
-          .then(function(actualValue) {
-            assert.equal(exptectedValue, actualValue);
-            done();
-          });
-      }
-    );
-
-    it(
-      'should throw error if storage doesn\'t return 200',
-      function(done) {
-        httpClient.getAsync.returns(Bluebird.resolve([
-          {statusCode: 500}
-        ]));
-
-        service.retrieve('key')
-          .catch(function(e) {
-            assert.equal(e.message, 'resource not found');
             done();
           });
       }

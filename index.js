@@ -9,11 +9,10 @@ var methods = ['get', 'post'];
 /**
  * @module @cascadeenergy/service-client
  * @param {string} discoveryUrl
- * @param {string} storageUrl
  * @param {Object} httpClient with getAsync and postAsync methods
  * @returns {Object} serviceClient with invoke and retrieve methods
  */
-module.exports = function(discoveryUrl, storageUrl, httpClient) {
+module.exports = function(discoveryUrl, httpClient) {
 
   /**
    * @function invoke
@@ -87,40 +86,16 @@ module.exports = function(discoveryUrl, storageUrl, httpClient) {
 
       return httpClient[options.method + 'Async'](request);
     }
-  }
 
-  /**
-   * @function retrieve
-   * @param {string} key
-   * @returns {Promise} resolves with value
-   */
-  function retrieve(key) {
-    return httpClient
-      .getAsync({
-        url: format(storageUrl, key),
-        json: true
-      })
-      .spread(checkStatusCode)
-      .then(pluckValue)
-      .then(decodeBase64);
-
-    function pluckValue(data) {
-      return data[0].Value;
+    function checkStatusCode(response, data) {
+      if (response.statusCode !== 200) {
+        throw new Error('resource not found');
+      }
+      return data;
     }
-    function decodeBase64(value) {
-      return new Buffer(value, 'base64').toString();
-    }
-  }
-
-  function checkStatusCode(response, data) {
-    if (response.statusCode !== 200) {
-      throw new Error('resource not found');
-    }
-    return data;
   }
 
   return {
-    invoke: invoke,
-    retrieve: retrieve
+    invoke: invoke
   };
 };
