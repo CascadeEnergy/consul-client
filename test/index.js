@@ -4,7 +4,7 @@ var assert = require('assert');
 var Bluebird = require('bluebird');
 var sinon = require('sinon');
 
-describe('lib/serviceFactory', function() {
+describe('index', function() {
   var serviceFactory;
   var service;
   var discoveryUrl = 'http://discovery/%s.url';
@@ -15,7 +15,7 @@ describe('lib/serviceFactory', function() {
   };
 
   beforeEach(function() {
-    serviceFactory = require('../serviceFactory');
+    serviceFactory = require('../index');
     service = serviceFactory({
       discoveryUrl: discoveryUrl,
       storageUrl: storageUrl,
