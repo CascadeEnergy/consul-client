@@ -15,7 +15,7 @@ describe('lib/serviceFactory', function() {
   };
 
   beforeEach(function() {
-    serviceFactory = require('../../lib/serviceFactory');
+    serviceFactory = require('../serviceFactory');
     service = serviceFactory({
       discoveryUrl: discoveryUrl,
       storageUrl: storageUrl,
