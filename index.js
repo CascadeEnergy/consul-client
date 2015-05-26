@@ -16,10 +16,10 @@ var methods = ['get', 'post'];
 module.exports = function(discoveryUrl, storageUrl, httpClient) {
 
   /**
-   * @function invoke invoke
+   * @function invoke
    * @param {string} serviceName
    * @param {Object} options can include method, endpoint and data
-   * @returns {Promise} resolves with
+   * @returns {Promise} resolves with service response
    */
   function invoke(serviceName, options) {
     var defaultOptions = {
@@ -89,6 +89,11 @@ module.exports = function(discoveryUrl, storageUrl, httpClient) {
     }
   }
 
+  /**
+   * @function retrieve
+   * @param {string} key
+   * @returns {Promise} resolves with value
+   */
   function retrieve(key) {
     return httpClient
       .getAsync({
