@@ -1,26 +1,101 @@
 'use strict';
 
+var _ = require('lodash');
 var Bluebird = require('bluebird');
-var request = require('request');
-var serviceFactory = require('./lib/serviceFactory');
+var format = require('util').format;
 
-var DISCOVERY_URL =
-  'http://internal.consul.energysensei.info/v1/health/service/%s?passing';
+var methods = ['get', 'post'];
 
-var STORAGE_URL =
-  'http://internal.consul.energysensei.info/v1/kv/%s';
+/**
+ * @module @cascadeenergy/service-client
+ * @param {string} discoveryUrl
+ * @param {Object} httpClient with getAsync and postAsync methods
+ * @returns {Object} serviceClient with invoke and retrieve methods
+ */
+module.exports = function(discoveryUrl, httpClient) {
 
-var service;
+  /**
+   * @function invoke
+   * @param {string} serviceName
+   * @param {Object} options can include method, endpoint and data
+   * @returns {Promise} resolves with service response
+   */
+  function invoke(serviceName, options) {
+    var defaultOptions = {
+      method: 'get'
+    };
 
-Bluebird.promisifyAll(request);
+    options = _.assign(defaultOptions, options);
 
-service = serviceFactory({
-  discoveryUrl: DISCOVERY_URL,
-  storageUrl: STORAGE_URL,
-  httpClient: request
-});
+    return Bluebird.resolve(options)
+      .then(validate)
+      .then(getServiceUrl)
+      .spread(checkStatusCode)
+      .then(pluckServiceUrl)
+      .then(makeRequest)
+      .spread(checkStatusCode);
 
-module.exports = {
-  invoke: service.invoke,
-  retrieve: service.retrieve
+    function validate(options) {
+      if (serviceName == null) {
+        throw new Error('service name required');
+      }
+
+      if (_.indexOf(methods, options.method) < 0) {
+        throw new Error('unsupported method');
+      }
+
+      return true;
+    }
+
+    function getServiceUrl() {
+      return httpClient
+        .getAsync({
+          url: format(discoveryUrl, serviceName),
+          json: true
+        });
+    }
+
+    function pluckServiceUrl(data) {
+      var serviceInfo;
+
+      if (data.length === 0) {
+        throw new Error('no service instances available');
+      }
+
+      serviceInfo = _.sample(data).Service;
+
+      return format(
+        'http://%s:%s',
+        serviceInfo.Address,
+        serviceInfo.Port
+      );
+    }
+
+    function makeRequest(serviceUrl) {
+      var request = {
+        json: true
+      };
+      if (options.endpoint) {
+        serviceUrl += '/' + options.endpoint;
+      }
+      request.url = serviceUrl;
+
+      if (options.payload) {
+        request.body = options.payload;
+      }
+
+      return httpClient[options.method + 'Async'](request);
+    }
+
+    function checkStatusCode(response, data) {
+      if (response.statusCode !== 200) {
+        throw new Error('resource not found');
+      }
+      return data;
+    }
+  }
+
+  return {
+    invoke: invoke
+  };
 };
