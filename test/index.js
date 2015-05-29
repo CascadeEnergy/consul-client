@@ -25,7 +25,7 @@ describe('index', function() {
     httpClient.postAsync.reset();
   });
 
-  describe('invoke', function() {
+  describe('service', function() {
     beforeEach(function() {
       httpClient.getAsync.returns(Bluebird.resolve([
         {statusCode: 200},
@@ -34,7 +34,7 @@ describe('index', function() {
     });
 
     it('should discover and call service', function(done) {
-      service.invoke('serviceName')
+      service('serviceName')
         .then(function() {
           assert(httpClient.getAsync.calledTwice);
           assert.deepEqual(
@@ -54,7 +54,7 @@ describe('index', function() {
     });
 
     it('should append endpoint', function(done) {
-      service.invoke('serviceName', {endpoint: 'resource'})
+      service('serviceName', {endpoint: 'resource'})
         .then(function() {
           assert.deepEqual(httpClient.getAsync.args[1], [
             {
@@ -70,7 +70,7 @@ describe('index', function() {
       var data = {};
       httpClient.postAsync.returns(Bluebird.resolve([{statusCode: 200}]));
 
-      service.invoke('serviceName', {method: 'post', payload: data})
+      service('serviceName', {method: 'post', payload: data})
         .then(function() {
           assert(httpClient.getAsync.calledOnce);
           assert.deepEqual(httpClient.postAsync.args[0], [
@@ -85,7 +85,7 @@ describe('index', function() {
     });
 
     it('should throw error if no service name is provided', function(done) {
-      service.invoke()
+      service()
         .catch(function(e) {
           assert.equal(e.message, 'service name required');
           done();
@@ -93,27 +93,12 @@ describe('index', function() {
     });
 
     it('should throw error method is unsupported', function(done) {
-      service.invoke('serviceName', {method: 'asdf'})
+      service('serviceName', {method: 'asdf'})
         .catch(function(e) {
           assert.equal(e.message, 'unsupported method');
           done();
         });
     });
-
-    it(
-      'should throw error if service discovery doesn\'t return 200',
-      function(done) {
-        httpClient.getAsync.returns(Bluebird.resolve([
-          {statusCode: 500}
-        ]));
-
-        service.invoke('serviceName')
-          .catch(function(e) {
-            assert.equal(e.message, 'resource not found');
-            done();
-          });
-      }
-    );
 
     it(
       'should throw error if service discovery returns an empty array',
@@ -123,9 +108,40 @@ describe('index', function() {
           []
         ]));
 
-        service.invoke('serviceName')
+        service('serviceName')
           .catch(function(e) {
             assert.equal(e.message, 'no service instances available');
+            done();
+          });
+      }
+    );
+
+    it(
+      'should throw status code if response is bad',
+      function(done) {
+        httpClient.getAsync.returns(Bluebird.resolve([
+          {statusCode: 400}
+        ]));
+
+        service('serviceName')
+          .catch(function(e) {
+            assert.equal(e.message, 'Status Code: 400');
+            done();
+          });
+      }
+    );
+
+    it(
+      'should throw data.message if services return bad status',
+      function(done) {
+        httpClient.getAsync.returns(Bluebird.resolve([
+          {statusCode: 400},
+          {message: 'Bad Request'}
+        ]));
+
+        service('serviceName')
+          .catch(function(e) {
+            assert.equal(e.message, 'Bad Request');
             done();
           });
       }

@@ -20,7 +20,7 @@ module.exports = function(discoveryUrl, httpClient) {
    * @param {Object} options can include method, endpoint and data
    * @returns {Promise} resolves with service response
    */
-  function invoke(serviceName, options) {
+   return function(serviceName, options) {
     var defaultOptions = {
       method: 'get'
     };
@@ -88,14 +88,18 @@ module.exports = function(discoveryUrl, httpClient) {
     }
 
     function checkStatusCode(response, data) {
-      if (response.statusCode !== 200) {
-        throw new Error('resource not found');
+      var statusCode = response.statusCode;
+      if (200 <= statusCode && statusCode < 400) {
+        return data;
       }
-      return data;
+      throw statusErrorFactory(statusCode, data);
     }
-  }
 
-  return {
-    invoke: invoke
+    function statusErrorFactory(statusCode, data) {
+      if(data && data.message) {
+        return new Error(data.message);
+      }
+      return new Error('Status Code: ' + statusCode)
+    }
   };
 };
