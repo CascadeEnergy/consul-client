@@ -1,6 +1,6 @@
 {
   "name": "@cascadeenergy/service-client",
-  "version": "0.0.2",
+  "version": "1.0.0-alpha",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha"
