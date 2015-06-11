@@ -6,8 +6,10 @@ Client code for service discovery and invocation
 ```javascript
 var serviceClient = require('../index');
 
+var consulHost = 'my.consul.com'; // e.g 172.x.x.x:8500
+var consul = serviceClient(consulHost);
+
 var config = {
-  host: 'my.consul.com', // e.g 172.x.x.x:8500
   serviceName: 'users',
   endpoint: 'users',
   method: 'POST',
@@ -17,8 +19,9 @@ var config = {
   }
 };
 
-// Posts a new user to the users' service /users route.
-serviceClient(config)
-  .then(console.log)
-  .catch(console.log);
+// Discovers an instance of the users service
+// and POSTs user data to it's /users route.
+consul(config)
+  .then(console.log) // log successes
+  .catch(console.log); // catch and log all errors
 ```

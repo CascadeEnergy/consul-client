@@ -13,14 +13,14 @@ var serviceUrlComposer = require('./lib/serviceUrlComposer');
  * Returns a service request function, closure scopes the host configuration
  * of the service discovery system.
  *
- * @param host
+ * @param host DNS or IP location of service discovery API
  */
 function serviceClient(host) {
   /**
    * Discovers services and makes HTTP requests to them using "got" http client.
    *
    * @param config Hash of configuration for the service request. It is a
-   * superset of "got" options, which is used underneath.
+   * super set of "got" options, which is used underneath.
    *
    * @returns Promise
    */
