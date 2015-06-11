@@ -8,9 +8,9 @@
   "author": "Cascade Energy <chris.cortez@cascadeenergy.com>>",
   "license": "Proprietary",
   "dependencies": {
-    "bluebird": "^2.9.25",
+    "got-promise": "^4.1.0",
     "lodash": "^3.9.1",
-    "request": "^2.55.0"
+    "reqo": "0.0.1"
   },
   "devDependencies": {
     "gulp": "^3.8.11",

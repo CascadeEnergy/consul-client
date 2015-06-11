@@ -1,9 +1,5 @@
-# service-client
-Client code for service discovery and invocation
+'use strict';
 
-## Example
-
-```javascript
 var serviceClient = require('../index');
 
 var config = {
@@ -17,8 +13,8 @@ var config = {
   }
 };
 
-// Posts a new user to the users' service /users route.
+// Discovers an instance of the users service
+// and POSTs a new user to it's /users route.
 serviceClient(config)
-  .then(console.log)
-  .catch(console.log);
-```
+  .then(console.log) // log successes
+  .catch(console.log); // catch and log all errors
