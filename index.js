@@ -19,7 +19,7 @@ function serviceClient(host) {
   /**
    * Discovers services and makes HTTP requests to them using "got" http client.
    *
-   * @param config Hash of configuration for the service request. It is a
+   * @param {object} config Hash of configuration for the service request. It is a
    * super set of "got" options, which is used underneath.
    *
    * @returns Promise
@@ -42,7 +42,7 @@ function serviceClient(host) {
     /**
      * Selects a healthy service instance to use if one exists.
      *
-     * @param response
+     * @param {object} response
      * @returns {Service|*}
      */
     function selectServiceInstance(response) {
@@ -56,8 +56,8 @@ function serviceClient(host) {
     /**
      * Makes an HTTP request to the service.
      *
-     * @param serviceUrl
-     * @returns Promise
+     * @param {string} serviceUrl
+     * @returns {Promise}
      */
     function makeRequest(serviceUrl) {
       return got(serviceUrl, requestOptions);
