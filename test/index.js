@@ -1,12 +1,13 @@
 var assert = require('assert');
 var isEqual = require('lodash/lang/isEqual');
 var nock = require('nock');
+var withData = require('leche').withData;
 var serviceClient = require('../index');
-
-var host = 'my.service.discovery.host.com';
 
 describe('service-client', function() {
   var serviceRequest;
+  var host = 'my.service.discovery.host.com';
+  var hostUrl = 'http://' + host;
 
   beforeEach(function() {
     serviceRequest = serviceClient(host);
@@ -16,7 +17,7 @@ describe('service-client', function() {
     var serviceName = 'testService';
 
     // Return empty array from service health check call
-    nock('http://' + host)
+    nock(hostUrl)
       .get('/v1/health/service/' + serviceName + '?passing')
       .reply(200, []);
 
@@ -29,57 +30,47 @@ describe('service-client', function() {
     });
   });
 
-  it('should make service request', function(done) {
-    var serviceName = 'testService';
-    var address = 'test.service.com';
-    var port = 1234;
-    var endpoint = 'testEndpoint';
-
-    // Health check call responds with one healthy service.
-    nock('http://' + host)
-      .get('/v1/health/service/' + serviceName + '?passing')
-      .reply(200, [{Service: {Address: address, Port: port}}]);
-
-    // Service is then called.
-    nock('http://' + address + ':' + port)
-      .get('/'+ endpoint)
-      .reply(200, {foo: 'bar'});
-
-    serviceRequest({
-      serviceName: serviceName,
-      endpoint: endpoint
-    }).then(function(response) {
-      assert.deepEqual(response.body, {foo: 'bar'});
-      done();
-    });
-  });
-
-  it('should accept POST body as plain javascript object', function(done) {
-    var serviceName = 'testService';
-    var address = 'test.service.com';
-    var port = 1234;
-    var endpoint = 'testEndpoint';
-
-    // Health check call responds with one healthy service.
-    nock('http://' + host)
-      .get('/v1/health/service/' + serviceName + '?passing')
-      .reply(200, [{Service: {Address: address, Port: port}}]);
-
-    // Service is then called.
-    nock('http://' + address + ':' + port)
-      .post('/'+ endpoint, function(body) {
+  withData({
+    'GET verb': [
+      'get',
+      undefined,
+      { serviceName: 'testService', endpoint: 'testEndpoint' },
+      { foo: 'bar' }
+    ],
+    'POST verb': [
+      'post',
+      function(body) {
         return isEqual(body, { beep: 'boop' });
-      })
-      .reply(200, {foo: 'bar'});
+      },
+      {
+        serviceName: 'testService',
+        endpoint: 'testEndpoint',
+        method: 'POST',
+        body: { beep: 'boop' }
+      },
+      { foo: 'bar' }
+    ]
+  }, function(verb, bodyValidateFn, requestConfig, serviceResponse) {
+    it('should make service request', function(done) {
+      var address = 'test.service.com';
+      var port = 4242;
+      var serviceUrl = 'http://' + address + ':' + port;
 
-    serviceRequest({
-      serviceName: serviceName,
-      endpoint: endpoint,
-      method: 'POST',
-      body: { beep: 'boop' }
-    }).then(function(response) {
-      assert.deepEqual(response.body, {foo: 'bar'});
-      done();
+      // Health check call responds with one healthy service.
+      nock(hostUrl)
+        .get('/v1/health/service/' + requestConfig.serviceName + '?passing')
+        .reply(200, [{Service: {Address: address, Port: port}}]);
+
+      // Service call
+      nock(serviceUrl)
+        [verb]('/' + requestConfig.endpoint, bodyValidateFn)
+        .reply(200, serviceResponse);
+
+      serviceRequest(requestConfig)
+        .then(function(response) {
+          assert.deepEqual(response.body, serviceResponse);
+          done();
+        });
     });
   });
 });
