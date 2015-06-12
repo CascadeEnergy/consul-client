@@ -49,6 +49,29 @@ describe('service-client', function() {
         body: { beep: 'boop' }
       },
       { foo: 'bar' }
+    ],
+    'PUT verb': [
+      'put',
+      function(body) {
+        return isEqual(body, { beep: 'boop' });
+      },
+      {
+        serviceName: 'testService',
+        endpoint: 'testEndpoint',
+        method: 'PUT',
+        body: { beep: 'boop' }
+      },
+      { foo: 'bar' }
+    ],
+    'DELETE verb': [
+      'delete',
+      undefined,
+      {
+        serviceName: 'testService',
+        endpoint: 'testEndpoint',
+        method: 'DELETE'
+      },
+      { foo: 'bar' }
     ]
   }, function(verb, bodyValidateFn, requestConfig, serviceResponse) {
     it('should make service request', function(done) {

@@ -4,7 +4,7 @@ Client code for service discovery and invocation
 ## Example
 
 ```javascript
-var serviceClient = require('../index');
+var serviceClient = require('service-client');
 
 var consulHost = 'my.consul.com'; // e.g 172.x.x.x:8500
 var consul = serviceClient(consulHost);
