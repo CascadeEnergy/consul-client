@@ -5,7 +5,6 @@ var withData = require('leche').withData;
 var serviceClient = require('../index');
 
 describe('service-client', function() {
-  var serviceRequest;
   var host = 'my.service.discovery.host.com';
   var hostUrl = 'http://' + host;
   var serviceName = 'testService';
@@ -15,6 +14,7 @@ describe('service-client', function() {
   var postSetup;
   var putSetup;
   var deleteSetup;
+  var serviceRequest;
 
   beforeEach(function() {
     serviceRequest = serviceClient(host);
