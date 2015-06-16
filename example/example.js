@@ -16,7 +16,7 @@ var config = {
 };
 
 // Discovers an instance of the users service
-// and POSTs user data to it's /users route.
+// and POSTs body to it's /users/login route.
 serviceRequest(config)
   .then(console.log) // log successes
   .catch(console.log); // catch and log all errors
