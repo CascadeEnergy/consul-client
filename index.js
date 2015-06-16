@@ -1,105 +1,70 @@
 'use strict';
 
-var _ = require('lodash');
-var Bluebird = require('bluebird');
-var format = require('util').format;
-
-var methods = ['get', 'post'];
+var assign = require('lodash/object/assign');
+var got = require('got-promise');
+var isEmpty = require('lodash/lang/isEmpty');
+var reqo = require('reqo');
+var sample = require('lodash/collection/sample');
+var composeConsulHealthUrl = require('./lib/composeConsulHealthUrl');
+var prepareRequestOptions = require('./lib/prepareRequestOptions');
+var serviceUrlComposer = require('./lib/serviceUrlComposer');
 
 /**
- * @module @cascadeenergy/service-client
- * @param {string} discoveryUrl
- * @param {Object} httpClient with getAsync and postAsync methods
- * @returns {Object} serviceClient with invoke and retrieve methods
+ * Returns a service request function, closure scopes the host configuration
+ * of the service discovery system.
+ *
+ * @param host DNS or IP location of service discovery API
  */
-module.exports = function(discoveryUrl, httpClient) {
-
+function serviceClient(host) {
   /**
-   * @function invoke
-   * @param {string} serviceName
-   * @param {Object} options can include method, endpoint and data
-   * @returns {Promise} resolves with service response
+   * Discovers services and makes HTTP requests to them using "got" http client.
+   *
+   * @param {object} config Hash of configuration for the service request. It is a
+   * super set of "got" options, which is used underneath.
+   *
+   * @returns Promise
    */
-   return function(serviceName, options) {
-    var defaultOptions = {
-      method: 'get'
-    };
+  function serviceRequest(config) {
+    var defaults = { endpoint: '', json: true };
+    var settings = assign({}, defaults, config);
+    var requestOptions = prepareRequestOptions(settings);
+    var healthUrl = composeConsulHealthUrl(host, settings.serviceName);
 
-    options = _.assign(defaultOptions, options);
+    // Make a request to Consul host to retrieve service health info
+    // selects a healthy service, if one exists
+    // uses service data found to compose a url of where to reach the service
+    // makes an HTTP request to the service.
+    return got(healthUrl, { json: true })
+      .then(selectServiceInstance)
+      .then(serviceUrlComposer(config.endpoint))
+      .then(makeRequest);
 
-    return Bluebird.resolve(options)
-      .then(validate)
-      .then(getServiceUrl)
-      .spread(checkStatusCode)
-      .then(pluckServiceUrl)
-      .then(makeRequest)
-      .spread(checkStatusCode);
-
-    function validate(options) {
-      if (serviceName == null) {
-        throw new Error('service name required');
-      }
-
-      if (_.indexOf(methods, options.method) < 0) {
-        throw new Error('unsupported method');
-      }
-
-      return true;
-    }
-
-    function getServiceUrl() {
-      return httpClient
-        .getAsync({
-          url: format(discoveryUrl, serviceName),
-          json: true
-        });
-    }
-
-    function pluckServiceUrl(data) {
-      var serviceInfo;
-
-      if (data.length === 0) {
+    /**
+     * Selects a healthy service instance to use if one exists.
+     *
+     * @param {object} response
+     * @returns {Service|*}
+     */
+    function selectServiceInstance(response) {
+      if (isEmpty(response.body)) {
         throw new Error('no service instances available');
       }
 
-      serviceInfo = _.sample(data).Service;
-
-      return format(
-        'http://%s:%s',
-        serviceInfo.Address,
-        serviceInfo.Port
-      );
+      return sample(response.body).Service;
     }
 
+    /**
+     * Makes an HTTP request to the service.
+     *
+     * @param {string} serviceUrl
+     * @returns {Promise}
+     */
     function makeRequest(serviceUrl) {
-      var request = {
-        json: true
-      };
-      if (options.endpoint) {
-        serviceUrl += '/' + options.endpoint;
-      }
-      request.url = serviceUrl;
-
-      if (options.payload) {
-        request.body = options.payload;
-      }
-
-      return httpClient[options.method + 'Async'](request);
+      return got(serviceUrl, requestOptions);
     }
+  }
 
-    function checkStatusCode(response, data) {
-      var statusCode = response.statusCode;
-      if (200 <= statusCode && statusCode < 400) {
-        return data;
-      }
-      throw statusErrorFactory(statusCode, data);
-    }
+  return reqo(serviceRequest, ['serviceName']);
+}
 
-    function statusErrorFactory(statusCode, data) {
-      if(data && data.message) {
-        return new Error(data.message);
-      }
-      return new Error('Status Code: ' + statusCode)
-    }
-  };
-};
+module.exports = serviceClient;

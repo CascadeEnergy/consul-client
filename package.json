@@ -8,15 +8,16 @@
   "author": "Cascade Energy <chris.cortez@cascadeenergy.com>>",
   "license": "Proprietary",
   "dependencies": {
-    "bluebird": "^2.9.25",
+    "got-promise": "^4.1.0",
     "lodash": "^3.9.1",
-    "request": "^2.55.0"
+    "reqo": "0.0.1"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-istanbul": "^0.9.0",
     "gulp-mocha": "^2.1.0",
-    "proxyquire": "^1.5.0",
-    "sinon": "^1.14.1"
+    "leche": "^2.1.1",
+    "mocha": "^2.2.5",
+    "nock": "^2.5.0"
   }
 }

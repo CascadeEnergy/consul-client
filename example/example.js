@@ -1,9 +1,3 @@
-# service-client
-Client code for service discovery and invocation
-
-## Example
-
-```javascript
 'use strict';
 
 var serviceClient = require('../index');
@@ -26,4 +20,3 @@ var config = {
 serviceRequest(config)
   .then(console.log) // log successes
   .catch(console.log); // catch and log all errors
-```
