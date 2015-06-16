@@ -4,24 +4,26 @@ Client code for service discovery and invocation
 ## Example
 
 ```javascript
-var serviceClient = require('service-client');
+'use strict';
+
+var serviceClient = require('../index');
 
 var consulHost = 'my.consul.com'; // e.g 172.x.x.x:8500
-var consul = serviceClient(consulHost);
+var serviceRequest = serviceClient(consulHost);
 
 var config = {
   serviceName: 'users',
-  endpoint: 'users',
+  endpoint: 'users/login',
   method: 'POST',
   body: {
-    username: 'foo',
-    password: 'bar'
+    username: 'will',
+    password: 'p@ssword'
   }
 };
 
 // Discovers an instance of the users service
 // and POSTs user data to it's /users route.
-consul(config)
+serviceRequest(config)
   .then(console.log) // log successes
   .catch(console.log); // catch and log all errors
 ```
