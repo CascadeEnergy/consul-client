@@ -1,4 +1,4 @@
-# consul-client
+# consul-client [![Build Status](https://travis-ci.org/CascadeEnergy/consul-client.svg)](https://travis-ci.org/CascadeEnergy/consul-client)
 Client code for service discovery and invocation
 
 ## Example
