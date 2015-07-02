@@ -3,10 +3,23 @@
   "version": "2.0.1",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha"
+    "test": "./node_modules/.bin/gulp test"
   },
-  "author": "Cascade Energy <chris.cortez@cascadeenergy.com>>",
-  "license": "Proprietary",
+  "author": {
+    "name": "CascadeEnergy",
+    "email": "chris.cortez@cascadeenergy.com"
+  },
+  "contributors": [
+    {
+      "name": "Michael Schoenfelder",
+      "email": "michaelkschoenfelder@gmail.com"
+    },
+    {
+      "name": "Will Vaughn",
+      "email": "willieviseoae@gmail.com"
+    }
+  ],
+  "license": "MIT",
   "dependencies": {
     "got-promise": "^4.1.0",
     "lodash": "^3.9.1",
