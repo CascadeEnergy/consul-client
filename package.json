@@ -8,6 +8,10 @@
   "engines": {
     "node": ">=0.10.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/CascadeEnergy/consul-client.git"
+  },
   "author": {
     "name": "CascadeEnergy",
     "email": "chris.cortez@cascadeenergy.com"
