@@ -5,6 +5,9 @@
   "scripts": {
     "test": "./node_modules/.bin/gulp test"
   },
+  "engines": {
+    "node": ">=0.10.0"
+  },
   "author": {
     "name": "CascadeEnergy",
     "email": "chris.cortez@cascadeenergy.com"
