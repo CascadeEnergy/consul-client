@@ -36,7 +36,7 @@ function serviceClient(host) {
     // makes an HTTP request to the service.
     return got(healthUrl, { json: true })
       .then(selectServiceInstance)
-      .then(serviceUrlComposer(config.endpoint))
+      .then(serviceUrlComposer(settings.endpoint))
       .then(makeRequest);
 
     /**
