@@ -1,4 +1,5 @@
 var assert = require('assert');
+var format = require('util').format;
 var isEqual = require('lodash/lang/isEqual');
 var nock = require('nock');
 var withData = require('leche').withData;
@@ -9,6 +10,7 @@ describe('service-client', function() {
   var hostUrl = 'http://' + host;
   var serviceName = 'testService';
   var endpoint = 'testEndpoint';
+  var version = '1.0.0';
   var sampleBody = { beep: 'boop' };
   var getSetup;
   var postSetup;
@@ -26,7 +28,7 @@ describe('service-client', function() {
   getSetup = [
     'get',
     undefined,
-    { serviceName: serviceName, endpoint: endpoint }
+    { serviceName: serviceName, version: version, endpoint: endpoint }
   ];
 
   postSetup = [
@@ -34,6 +36,7 @@ describe('service-client', function() {
     function(body) { return isEqual(body, sampleBody); },
     {
       serviceName: serviceName,
+      version: version,
       endpoint: endpoint,
       method: 'POST',
       body: sampleBody
@@ -45,6 +48,7 @@ describe('service-client', function() {
     function(body) { return isEqual(body, sampleBody); },
     {
       serviceName: serviceName,
+      version: version,
       endpoint: endpoint,
       method: 'PUT',
       body: sampleBody
@@ -54,7 +58,12 @@ describe('service-client', function() {
   deleteSetup = [
     'delete',
     undefined,
-    { serviceName: serviceName, endpoint: endpoint, method: 'DELETE' }
+    {
+      serviceName: serviceName,
+      version: version,
+      endpoint: endpoint,
+      method: 'DELETE'
+    }
   ];
 
   withData({
@@ -68,10 +77,15 @@ describe('service-client', function() {
       var port = 4242;
       var serviceUrl = 'http://' + address + ':' + port;
       var serviceResponse = { foo: 'bar' };
+      var healthUrl = format(
+        '/v1/health/service/%s?passing&tag=%s',
+        requestConfig.serviceName,
+        version
+      );
 
       // Health check call responds with one healthy service.
       nock(hostUrl)
-        .get('/v1/health/service/' + requestConfig.serviceName + '?passing')
+        .get(healthUrl)
         .reply(200, [{Service: {Address: address, Port: port}}]);
 
       // Service call
@@ -91,14 +105,21 @@ describe('service-client', function() {
   // Testing service instances not found.
   // =====================================
   it('should throw an error if no healthy services are found', function(done) {
+    var healthUrl = format(
+      '/v1/health/service/%s?passing&tag=%s',
+      serviceName,
+      version
+    );
+
     // Return empty array from service health check call
     nock(hostUrl)
-      .get('/v1/health/service/' + serviceName + '?passing')
+      .get(healthUrl)
       .reply(200, []);
 
     // Results in an error, "no service instances available"
     serviceRequest({
-      serviceName: serviceName
+      serviceName: serviceName,
+      version: version
     }).catch(function(err) {
       assert.equal(err.message, 'no service instances available');
       done();
