@@ -28,7 +28,11 @@ function serviceClient(host) {
     var defaults = { endpoint: '', json: true };
     var settings = assign({}, defaults, config);
     var requestOptions = prepareRequestOptions(settings);
-    var healthUrl = composeConsulHealthUrl(host, settings.serviceName);
+    var healthUrl = composeConsulHealthUrl(
+      host,
+      settings.serviceName,
+      settings.version
+    );
 
     // Make a request to Consul host to retrieve service health info
     // selects a healthy service, if one exists
@@ -64,7 +68,7 @@ function serviceClient(host) {
     }
   }
 
-  return reqo(serviceRequest, ['serviceName']);
+  return reqo(serviceRequest, ['serviceName', 'version']);
 }
 
 module.exports = serviceClient;

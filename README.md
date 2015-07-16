@@ -13,6 +13,7 @@ var consulRequest = consulClient(consulHost);
 
 var config = {
   serviceName: 'users',
+  version: '1.0.0',
   endpoint: 'users/login',
   method: 'POST',
   body: {
