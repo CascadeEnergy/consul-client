@@ -1,7 +1,7 @@
 'use strict';
 
 var assign = require('lodash/object/assign');
-var got = require('got-promise');
+var got = require('got');
 var isEmpty = require('lodash/lang/isEmpty');
 var reqo = require('reqo');
 var sample = require('lodash/collection/sample');

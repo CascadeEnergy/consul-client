@@ -28,8 +28,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^2.9.30",
-    "got-promise": "^4.1.0",
+    "got": "^4.2.0",
     "lodash": "^3.9.1",
     "reqo": "0.0.1"
   },
