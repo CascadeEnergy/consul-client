@@ -3,7 +3,7 @@ var format = require('util').format;
 var isEqual = require('lodash/lang/isEqual');
 var nock = require('nock');
 var withData = require('leche').withData;
-var serviceClient = require('../index');
+var consulClient = require('../index');
 
 describe('service-client', function() {
   var host = 'my.service.discovery.host.com';
@@ -16,10 +16,10 @@ describe('service-client', function() {
   var postSetup;
   var putSetup;
   var deleteSetup;
-  var serviceRequest;
+  var consulRequest;
 
   beforeEach(function() {
-    serviceRequest = serviceClient(host);
+    consulRequest = consulClient(host);
   });
 
   // =====================================
@@ -93,7 +93,7 @@ describe('service-client', function() {
         [verb]('/' + requestConfig.endpoint, bodyValidateFn)
         .reply(200, serviceResponse);
 
-      serviceRequest(requestConfig)
+      consulRequest(requestConfig)
         .then(function(response) {
           assert.deepEqual(response.body, serviceResponse);
           done();
@@ -117,7 +117,7 @@ describe('service-client', function() {
       .reply(200, []);
 
     // Results in an error, "no service instances available"
-    serviceRequest({
+    consulRequest({
       serviceName: serviceName,
       version: version
     }).catch(function(err) {

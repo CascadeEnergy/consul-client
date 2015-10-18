@@ -10,12 +10,12 @@ var prepareRequestOptions = require('./lib/prepareRequestOptions');
 var serviceUrlComposer = require('./lib/serviceUrlComposer');
 
 /**
- * Returns a service request function, closure scopes the host configuration
+ * Returns a consul request function, closure scopes the host configuration
  * of the service discovery system.
  *
  * @param host DNS or IP location of service discovery API
  */
-function serviceClient(host) {
+function consulClient(host) {
   /**
    * Discovers services and makes HTTP requests to them using "got" http client.
    *
@@ -24,7 +24,7 @@ function serviceClient(host) {
    *
    * @returns Promise
    */
-  function serviceRequest(config) {
+  function consulRequest(config) {
     var defaults = { endpoint: '', json: true };
     var settings = assign({}, defaults, config);
     var requestOptions = prepareRequestOptions(settings);
@@ -68,7 +68,7 @@ function serviceClient(host) {
     }
   }
 
-  return reqo(serviceRequest, ['serviceName', 'version']);
+  return reqo(consulRequest, ['serviceName', 'version']);
 }
 
-module.exports = serviceClient;
+module.exports = consulClient;
