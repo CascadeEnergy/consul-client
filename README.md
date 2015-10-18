@@ -31,7 +31,7 @@ consulRequest(config)
 
 ## Upgrade Path 3.0.0 to 4.0.0
 
-The `3.0.0` version of `consul-client` depended on a module called `got-promise` which returned promised backed by the
+The `3.0.0` version of `consul-client` depended on a module called `got-promise` which returned promises backed by the
 expanded `bluebird` API for promises. The `got-promise` module is now deprecated because `got` supports promises by
 default now. Version `4.0.0` of `consul-client` now depends directly on `got`, but because `got` uses `pinkie-promise`
 as a Promise polyfill instead of `bluebird`, any code which used version `3.0.0` of `consul-client` and took advantage
