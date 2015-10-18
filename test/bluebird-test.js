@@ -5,7 +5,7 @@ var nock = require('nock');
 var withData = require('leche').withData;
 var consulClientBluebird = require('../bluebird');
 
-describe('service-client', function() {
+describe('consul-client/bluebird', function() {
   var host = 'my.service.discovery.host.com';
   var hostUrl = 'http://' + host;
   var serviceName = 'testService';
@@ -72,7 +72,7 @@ describe('service-client', function() {
     'PUT verb': putSetup,
     'DELETE verb': deleteSetup
   }, function(verb, bodyValidateFn, requestConfig) {
-    it('should make service request', function(done) {
+    it('should make consul request', function(done) {
       var address = 'test.service.com';
       var port = 4242;
       var serviceUrl = 'http://' + address + ':' + port;
