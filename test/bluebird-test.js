@@ -3,9 +3,9 @@ var format = require('util').format;
 var isEqual = require('lodash/lang/isEqual');
 var nock = require('nock');
 var withData = require('leche').withData;
-var serviceClient = require('../index');
+var consulClientBluebird = require('../bluebird');
 
-describe('service-client', function() {
+describe('consul-client/bluebird', function() {
   var host = 'my.service.discovery.host.com';
   var hostUrl = 'http://' + host;
   var serviceName = 'testService';
@@ -16,10 +16,10 @@ describe('service-client', function() {
   var postSetup;
   var putSetup;
   var deleteSetup;
-  var serviceRequest;
+  var consulRequest;
 
   beforeEach(function() {
-    serviceRequest = serviceClient(host);
+    consulRequest = consulClientBluebird(host);
   });
 
   // =====================================
@@ -72,7 +72,7 @@ describe('service-client', function() {
     'PUT verb': putSetup,
     'DELETE verb': deleteSetup
   }, function(verb, bodyValidateFn, requestConfig) {
-    it('should make service request', function(done) {
+    it('should make consul request', function(done) {
       var address = 'test.service.com';
       var port = 4242;
       var serviceUrl = 'http://' + address + ':' + port;
@@ -93,9 +93,18 @@ describe('service-client', function() {
         [verb]('/' + requestConfig.endpoint, bodyValidateFn)
         .reply(200, serviceResponse);
 
-      serviceRequest(requestConfig)
+      consulRequest(requestConfig)
         .then(function(response) {
           assert.deepEqual(response.body, serviceResponse);
+          // Something to send through bluebird.map()
+          return ['foo', 'bar'];
+        })
+        .map(function(result) {
+          // bazify each item in the result set
+          return result + 'baz';
+        })
+        .then(function(arr) {
+          assert.deepEqual(arr, ['foobaz', 'barbaz']);
           done();
         });
     });
@@ -117,7 +126,7 @@ describe('service-client', function() {
       .reply(200, []);
 
     // Results in an error, "no service instances available"
-    serviceRequest({
+    consulRequest({
       serviceName: serviceName,
       version: version
     }).catch(function(err) {

@@ -1,6 +1,6 @@
 {
   "name": "consul-client",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/gulp test"
@@ -28,8 +28,8 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^2.9.30",
-    "got-promise": "^4.1.0",
+    "bluebird": "^2.10.2",
+    "got": "^4.2.0",
     "lodash": "^3.9.1",
     "reqo": "0.0.1"
   },
