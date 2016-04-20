@@ -5,7 +5,7 @@ var gulpIstanbul = require('gulp-istanbul');
 var gulpMocha = require('gulp-mocha');
 
 gulp.task('test', function(cb) {
-  gulp.src(['lib/**/*.js', 'index.js'])
+  gulp.src(['lib/**/*.js', 'index.js', 'bluebird.js'])
     .pipe(gulpIstanbul())
     .pipe(gulpIstanbul.hookRequire())
     .on('finish', function() {
