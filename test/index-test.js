@@ -139,7 +139,7 @@ describe('consul-client', function() {
       .get(healthUrl)
       .reply(200, serviceResponse);
 
-    serviceRequest({
+    consulRequest({
       serviceName: serviceName,
       version: 'foo-invalid-version'
     }).catch(function(err) {
@@ -159,11 +159,11 @@ describe('consul-client', function() {
       .get(healthUrl)
       .reply(200, serviceResponse);
 
-    serviceRequest({
+    consulRequest({
       serviceName: serviceName,
       version: '1.0.0'
     }).catch(function(err) {
-      assert.equal(err.message, 'no services matching requested version');
+      assert.equal(err.message, 'no services matching requested version were found');
       done();
     });
   });

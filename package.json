@@ -1,6 +1,6 @@
 {
   "name": "consul-client",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/gulp test"

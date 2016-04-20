@@ -78,15 +78,14 @@ describe('consul-client/bluebird', function() {
       var serviceUrl = 'http://' + address + ':' + port;
       var serviceResponse = { foo: 'bar' };
       var healthUrl = format(
-        '/v1/health/service/%s?passing&tag=%s',
-        requestConfig.serviceName,
-        version
+        '/v1/health/service/%s?passing',
+        requestConfig.serviceName
       );
 
       // Health check call responds with one healthy service.
       nock(hostUrl)
         .get(healthUrl)
-        .reply(200, [{Service: {Address: address, Port: port}}]);
+        .reply(200, [{Service: {Tags: ['1.0.0'], Address: address, Port: port}}]);
 
       // Service call
       nock(serviceUrl)
@@ -115,9 +114,8 @@ describe('consul-client/bluebird', function() {
   // =====================================
   it('should throw an error if no healthy services are found', function(done) {
     var healthUrl = format(
-      '/v1/health/service/%s?passing&tag=%s',
-      serviceName,
-      version
+      '/v1/health/service/%s?passing',
+      serviceName
     );
 
     // Return empty array from service health check call
