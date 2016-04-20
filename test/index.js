@@ -76,17 +76,16 @@ describe('service-client', function() {
       var address = 'test.service.com';
       var port = 4242;
       var serviceUrl = 'http://' + address + ':' + port;
-      var serviceResponse = { foo: 'bar' };
+      var serviceResponse = { body: [{Service: {Tags: ['1.0.0']}}] };
       var healthUrl = format(
-        '/v1/health/service/%s?passing&tag=%s',
-        requestConfig.serviceName,
-        version
+        '/v1/health/service/%s?passing',
+        requestConfig.serviceName
       );
 
       // Health check call responds with one healthy service.
       nock(hostUrl)
         .get(healthUrl)
-        .reply(200, [{Service: {Address: address, Port: port}}]);
+        .reply(200, [{Service: {Tags: ['1.0.0'], Address: address, Port: port}}]);
 
       // Service call
       nock(serviceUrl)
@@ -106,9 +105,8 @@ describe('service-client', function() {
   // =====================================
   it('should throw an error if no healthy services are found', function(done) {
     var healthUrl = format(
-      '/v1/health/service/%s?passing&tag=%s',
-      serviceName,
-      version
+      '/v1/health/service/%s?passing',
+      serviceName
     );
 
     // Return empty array from service health check call
@@ -122,6 +120,50 @@ describe('service-client', function() {
       version: version
     }).catch(function(err) {
       assert.equal(err.message, 'no service instances available');
+      done();
+    });
+  });
+
+  // ======================================
+  // Testing version string issues.
+  // ======================================
+  it('should throw an error if the version string provided is invalid', function(done) {
+    var healthUrl = format(
+      '/v1/health/service/%s?passing',
+      serviceName
+    );
+    var serviceResponse = { body: [{Service: {Tags: ['1.0.0']}}] };
+
+    // Return empty array from service health check call
+    nock(hostUrl)
+      .get(healthUrl)
+      .reply(200, serviceResponse);
+
+    serviceRequest({
+      serviceName: serviceName,
+      version: 'foo-invalid-version'
+    }).catch(function(err) {
+      assert.equal(err.message, 'invalid version supplied');
+      done();
+    });
+  });
+
+  it('should throw an error if the version provided matches no running services', function(done) {
+    var healthUrl = format(
+      '/v1/health/service/%s?passing',
+      serviceName
+    );
+    var serviceResponse = [{Service: {Tags: ['0-1-0']}}];
+
+    nock(hostUrl)
+      .get(healthUrl)
+      .reply(200, serviceResponse);
+
+    serviceRequest({
+      serviceName: serviceName,
+      version: '1.0.0'
+    }).catch(function(err) {
+      assert.equal(err.message, 'no services matching requested version');
       done();
     });
   });
