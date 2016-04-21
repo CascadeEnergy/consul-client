@@ -128,7 +128,7 @@ describe('consul-client/bluebird', function() {
       serviceName: serviceName,
       version: version
     }).catch(function(err) {
-      assert.equal(err.message, 'no service instances available');
+      assert.equal(err.message, 'No service instances available');
       done();
     });
   });

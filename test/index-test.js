@@ -119,7 +119,7 @@ describe('consul-client', function() {
       serviceName: serviceName,
       version: version
     }).catch(function(err) {
-      assert.equal(err.message, 'no service instances available');
+      assert.equal(err.message, 'No service instances available');
       done();
     });
   });
@@ -143,7 +143,7 @@ describe('consul-client', function() {
       serviceName: serviceName,
       version: 'foo-invalid-version'
     }).catch(function(err) {
-      assert.equal(err.message, 'invalid version supplied');
+      assert.equal(err.message, 'Invalid version supplied');
       done();
     });
   });
@@ -163,7 +163,7 @@ describe('consul-client', function() {
       serviceName: serviceName,
       version: '1.0.0'
     }).catch(function(err) {
-      assert.equal(err.message, 'no services matching requested version were found');
+      assert.equal(err.message, 'No services matching requested version were found');
       done();
     });
   });
