@@ -66,7 +66,9 @@ function consulClient(host) {
       var matches = [];
 
       response.body.forEach(function(hit) {
-        if (semver.satisfies(hit.Service.Tags[0] = hit.Service.Tags[0].replace(/-/g, '.'), version)) {
+        hit.Service.Tags[0] = hit.Service.Tags[0].replace(/-/g, '.');
+
+        if (semver.satisfies(hit.Service.Tags[0], version)) {
           matches.push(hit.Service);
         }
       });
