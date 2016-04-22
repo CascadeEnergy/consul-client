@@ -55,6 +55,9 @@ function consulClient(host) {
      * @returns {Service|*}
      */
     function selectServiceInstance(response, version) {
+      var maxVersion;
+      var matches;
+
       if (isEmpty(response.body)) {
         throw new Error('No service instances available');
       }
@@ -63,7 +66,7 @@ function consulClient(host) {
         throw new Error('Invalid version supplied');
       }
 
-      var matches = [];
+      matches = [];
 
       response.body.forEach(function(hit) {
         hit.Service.Tags[0] = hit.Service.Tags[0].replace(/-/g, '.');
@@ -73,11 +76,11 @@ function consulClient(host) {
         }
       });
 
-      if(isEmpty(matches)) {
+      if (isEmpty(matches)) {
         throw new Error('No services matching requested version were found');
       }
 
-      var maxVersion = semver.maxSatisfying(matches.map( function(match) { return match.Tags[0]; }), version);
+      maxVersion = semver.maxSatisfying(matches.map( function(match) { return match.Tags[0]; }), version);
 
       return sample(filter(matches, function(match) { return match.Tags[0] == maxVersion; }));
     }
