@@ -8,6 +8,8 @@ var sample = require('lodash/collection/sample');
 var composeConsulHealthUrl = require('./lib/composeConsulHealthUrl');
 var prepareRequestOptions = require('./lib/prepareRequestOptions');
 var serviceUrlComposer = require('./lib/serviceUrlComposer');
+var semver = require('semver');
+var filter = require('lodash/collection/filter');
 
 /**
  * Returns a consul request function, closure scopes the host configuration
@@ -30,16 +32,18 @@ function consulClient(host) {
     var requestOptions = prepareRequestOptions(settings);
     var healthUrl = composeConsulHealthUrl(
       host,
-      settings.serviceName,
-      settings.version
+      settings.serviceName
     );
+    var version = semver.validRange(settings.version);
 
     // Make a request to Consul host to retrieve service health info
     // selects a healthy service, if one exists
     // uses service data found to compose a url of where to reach the service
     // makes an HTTP request to the service.
     return got(healthUrl, { json: true })
-      .then(selectServiceInstance)
+      .then(function(response) {
+        return selectServiceInstance(response, version)
+      })
       .then(serviceUrlComposer(settings.endpoint))
       .then(makeRequest);
 
@@ -47,14 +51,38 @@ function consulClient(host) {
      * Selects a healthy service instance to use if one exists.
      *
      * @param {object} response
+     * @param {String} version
      * @returns {Service|*}
      */
-    function selectServiceInstance(response) {
+    function selectServiceInstance(response, version) {
+      var maxVersion;
+      var matches;
+
       if (isEmpty(response.body)) {
-        throw new Error('no service instances available');
+        throw new Error('No service instances available');
       }
 
-      return sample(response.body).Service;
+      if (!version) {
+        throw new Error('Invalid version supplied');
+      }
+
+      matches = [];
+
+      response.body.forEach(function(hit) {
+        hit.Service.Tags[0] = hit.Service.Tags[0].replace(/-/g, '.');
+
+        if (semver.satisfies(hit.Service.Tags[0], version)) {
+          matches.push(hit.Service);
+        }
+      });
+
+      if (isEmpty(matches)) {
+        throw new Error('No services matching requested version were found');
+      }
+
+      maxVersion = semver.maxSatisfying(matches.map( function(match) { return match.Tags[0]; }), version);
+
+      return sample(filter(matches, function(match) { return match.Tags[0] == maxVersion; }));
     }
 
     /**

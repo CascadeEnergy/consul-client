@@ -1,6 +1,6 @@
 {
   "name": "consul-client",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/gulp test"
@@ -24,6 +24,10 @@
     {
       "name": "Will Vaughn",
       "email": "willieviseoae@gmail.com"
+    },
+    {
+      "name": "Nick Warlen",
+      "email": "nick.warlen@cascadeenergy.com"
     }
   ],
   "license": "MIT",
@@ -31,7 +35,8 @@
     "bluebird": "^2.10.2",
     "got": "^4.2.0",
     "lodash": "^3.9.1",
-    "reqo": "0.0.1"
+    "reqo": "0.0.1",
+    "semver": "^5.1.0"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
