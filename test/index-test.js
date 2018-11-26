@@ -1,6 +1,6 @@
 var assert = require('assert');
 var format = require('util').format;
-var isEqual = require('lodash/lang/isEqual');
+var { isEqual } = require('lodash');
 var nock = require('nock');
 var withData = require('leche').withData;
 var consulClient = require('../index');

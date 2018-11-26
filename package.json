@@ -34,16 +34,16 @@
   "dependencies": {
     "bluebird": "^2.10.2",
     "got": "^4.2.0",
-    "lodash": "^3.9.1",
-    "reqo": "0.0.1",
+    "lodash": "^4.17.11",
     "semver": "^5.1.0"
   },
   "devDependencies": {
-    "gulp": "^3.8.11",
-    "gulp-istanbul": "^0.9.0",
-    "gulp-mocha": "^2.1.0",
+    "gulp": "^4.0.0",
+    "gulp-istanbul": "^1.1.3",
+    "gulp-mocha": "^6.0.0",
     "leche": "^2.1.1",
-    "mocha": "^2.2.5",
-    "nock": "^2.5.0"
+    "mocha": "^5.2.0",
+    "nock": "^10.0.2",
+    "sinon": "^7.1.1"
   }
 }
