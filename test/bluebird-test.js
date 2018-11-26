@@ -1,8 +1,8 @@
 var assert = require('assert');
-var format = require('util').format;
+var { format } = require('util');
 var { isEqual } = require('lodash');
 var nock = require('nock');
-var withData = require('leche').withData;
+var { withData } = require('leche');
 var consulClientBluebird = require('../bluebird');
 
 describe('consul-client/bluebird', function() {
