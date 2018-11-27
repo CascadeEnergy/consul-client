@@ -1,10 +1,10 @@
-var Bluebird = require('bluebird');
-var consulClient = require('./index');
+const Bluebird = require("bluebird");
+const consulClient = require("./index");
 
 function consulRequestBluebirdDecorator(consulRequest) {
   return function(config) {
     return Bluebird.resolve(consulRequest(config));
-  }
+  };
 }
 
 function consulClientBluebird(host) {

@@ -1,12 +1,10 @@
-'use strict';
-
-var { assign, isEmpty, sample, filter } = require('lodash');
-var got = require('got');
-var reqo = require('./lib/reqo');
-var composeConsulHealthUrl = require('./lib/composeConsulHealthUrl');
-var prepareRequestOptions = require('./lib/prepareRequestOptions');
-var serviceUrlComposer = require('./lib/serviceUrlComposer');
-var semver = require('semver');
+const { assign, isEmpty, sample, filter } = require("lodash");
+const got = require("got");
+const semver = require("semver");
+const reqo = require("./lib/reqo");
+const composeConsulHealthUrl = require("./lib/composeConsulHealthUrl");
+const prepareRequestOptions = require("./lib/prepareRequestOptions");
+const serviceUrlComposer = require("./lib/serviceUrlComposer");
 
 /**
  * Returns a consul request function, closure scopes the host configuration
@@ -24,23 +22,18 @@ function consulClient(host) {
    * @returns Promise
    */
   function consulRequest(config) {
-    var defaults = { endpoint: '', json: true };
-    var settings = assign({}, defaults, config);
-    var requestOptions = prepareRequestOptions(settings);
-    var healthUrl = composeConsulHealthUrl(
-      host,
-      settings.serviceName
-    );
-    var version = semver.validRange(settings.version);
+    const defaults = { endpoint: "", json: true };
+    const settings = assign({}, defaults, config);
+    const requestOptions = prepareRequestOptions(settings);
+    const healthUrl = composeConsulHealthUrl(host, settings.serviceName);
+    const version = semver.validRange(settings.version);
 
     // Make a request to Consul host to retrieve service health info
     // selects a healthy service, if one exists
     // uses service data found to compose a url of where to reach the service
     // makes an HTTP request to the service.
     return got(healthUrl, { json: true })
-      .then(function(response) {
-        return selectServiceInstance(response, version)
-      })
+      .then(response => selectServiceInstance(response, version))
       .then(serviceUrlComposer(settings.endpoint))
       .then(makeRequest);
 
@@ -51,22 +44,21 @@ function consulClient(host) {
      * @param {String} version
      * @returns {Service|*}
      */
+    // eslint-disable-next-line no-shadow
     function selectServiceInstance(response, version) {
-      var maxVersion;
-      var matches;
+      const matches = [];
 
       if (isEmpty(response.body)) {
-        throw new Error('No service instances available');
+        throw new Error("No service instances available");
       }
 
       if (!version) {
-        throw new Error('Invalid version supplied');
+        throw new Error("Invalid version supplied");
       }
 
-      matches = [];
-
-      response.body.forEach(function(hit) {
-        hit.Service.Tags[0] = hit.Service.Tags[0].replace(/-/g, '.');
+      response.body.forEach(hit => {
+        // eslint-disable-next-line no-param-reassign
+        hit.Service.Tags[0] = hit.Service.Tags[0].replace(/-/g, ".");
 
         if (semver.satisfies(hit.Service.Tags[0], version)) {
           matches.push(hit.Service);
@@ -74,12 +66,12 @@ function consulClient(host) {
       });
 
       if (isEmpty(matches)) {
-        throw new Error('No services matching requested version were found');
+        throw new Error("No services matching requested version were found");
       }
 
-      maxVersion = semver.maxSatisfying(matches.map( function(match) { return match.Tags[0]; }), version);
+      const maxVersion = semver.maxSatisfying(matches.map(match => match.Tags[0]), version);
 
-      return sample(filter(matches, function(match) { return match.Tags[0] == maxVersion; }));
+      return sample(filter(matches, match => match.Tags[0] === maxVersion));
     }
 
     /**
@@ -93,7 +85,7 @@ function consulClient(host) {
     }
   }
 
-  return reqo(consulRequest, ['serviceName', 'version']);
+  return reqo(consulRequest, ["serviceName", "version"]);
 }
 
 module.exports = consulClient;
