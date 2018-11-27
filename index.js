@@ -1,15 +1,12 @@
 'use strict';
 
-var assign = require('lodash/object/assign');
+var { assign, isEmpty, sample, filter } = require('lodash');
 var got = require('got');
-var isEmpty = require('lodash/lang/isEmpty');
-var reqo = require('reqo');
-var sample = require('lodash/collection/sample');
+var reqo = require('./lib/reqo');
 var composeConsulHealthUrl = require('./lib/composeConsulHealthUrl');
 var prepareRequestOptions = require('./lib/prepareRequestOptions');
 var serviceUrlComposer = require('./lib/serviceUrlComposer');
 var semver = require('semver');
-var filter = require('lodash/collection/filter');
 
 /**
  * Returns a consul request function, closure scopes the host configuration
