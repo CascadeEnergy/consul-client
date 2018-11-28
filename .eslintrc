@@ -1,0 +1,21 @@
+{
+  "root": true,
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "parser": "babel-eslint",
+  "extends": ["airbnb", "plugin:prettier/recommended"],
+  "rules": {
+    "react/jsx-filename-extension": 0,
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    "no-use-before-define": ["error", { "functions": false }],
+    "prettier/prettier": ["error"]
+  },
+  "env": {
+    "node": true,
+    "mocha": true,
+    "browser": true
+  }
+}
